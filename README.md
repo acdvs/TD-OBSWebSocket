@@ -7,7 +7,7 @@ A packaged TouchDesigner component that connects to an [OBS](https://obsproject.
 1. Download the .tox file from the `/dist` folder and place it in a location convenient for your project.
 2. Drag and drop it into your project.
 3. Set the Address and Port of the server in the Connection parameters tab. Set the Password if there is one.
-4. If Auto-Reconnect is enabled: the component will connect to the server automatically.
+4. If Auto-Reconnect is enabled: the component will connect to the server automatically.  
    If Auto-Reconnect is disabled: enable the Active switch to connect to the server.
 
 Several events are considered "high-volume" and must be individually opted into to receive them. You can do this in the Connection parameters tab. These events are:
