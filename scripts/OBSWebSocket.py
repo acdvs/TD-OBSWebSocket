@@ -10,6 +10,9 @@ class OBSWebSocket:
 		self.parentComp = parentComp
 		self.websocket = op('websocket')
 		
+		self.RequestType = RequestType
+		self.RequestBatchExecutionType = RequestBatchExecutionType
+		
 		self.parentComp.par.Connected = False
 		self.websocket.clear()
 		op('request_responses').clear(keepFirstRow=True)
