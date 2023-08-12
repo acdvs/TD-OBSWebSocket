@@ -40,11 +40,11 @@ Two methods on the OBSWebSocket component can be used to send requests to OBS.
 
     ```python
     {
-        "requestType": RequestType or str
+        "requestType": RequestType or str,
         # Optional. A custom string used to track the request.
-        "requestId": str
+        "requestId": str,
         # Optional. A dict containing any input the request requires.
-    	"requestData": object
+        "requestData": object
     }
     ```
 
