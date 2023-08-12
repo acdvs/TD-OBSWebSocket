@@ -1,6 +1,8 @@
 import json
 from hashlib import sha256
 from base64 import b64encode
+from uuid import uuid4
+from collections.abc import Sequence
 from OBSEnums import WebSocketOpCode, EventSubscription, RequestType, RequestBatchExecutionType
 
 class OBSWebSocket:
@@ -9,6 +11,8 @@ class OBSWebSocket:
 		self.websocket = op('websocket')
 		
 		self.parentComp.par.Connected = False
+		self.websocket.clear()
+		op('request_responses').clear(keepFirstRow=True)
 	
 	def Identify(self, data):		
 		response = {
@@ -56,6 +60,43 @@ class OBSWebSocket:
 			bitmask |= EventSubscription.SCENE_ITEM_TRANSFORM_CHANGED
 		
 		return bitmask
+	
+	def SendRequest(self, typ, data={}):
+		self.parentComp.clearScriptErrors()
+
+		if isinstance(typ, RequestType):
+			typ = typ.value
+
+		request = {
+			'op': WebSocketOpCode.REQUEST,
+			'd': {
+				'requestType': typ,
+				'requestId': str(uuid4()),
+				'requestData': data
+			}
+		}
+
+		self.websocket.sendText(json.dumps(request))
+	
+	def SendRequestBatch(self, data, executionType=RequestBatchExecutionType.SERIAL_REALTIME, haltOnFailure=False):
+		self.parentComp.clearScriptErrors()
+
+		if isinstance(data, Sequence):
+			for request in data:
+				if isinstance(request['requestType'], RequestType):
+					request['requestType'] = request['requestType'].value
+
+		request = {
+			'op': WebSocketOpCode.REQUEST_BATCH,
+			'd': {
+				'requestId': str(uuid4()),
+				'haltOnFailure': haltOnFailure,
+				'executionType': executionType,
+				'requests': data
+			}
+		}
+
+		self.websocket.sendText(json.dumps(request))
 	
 	def HandleEvent(self, data):
 		name = data['eventType']

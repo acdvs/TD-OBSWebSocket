@@ -20,4 +20,23 @@ def onReceiveText(dat, rowIndex, message):
 		parent().Identify(data)
 	elif opCode == WebSocketOpCode.IDENTIFIED:
 		parent().par.Connected = True
-		parent().HandleEvent(data)		parent().HandleEvent(data)
+	elif opCode == WebSocketOpCode.EVENT:
+		parent().HandleEvent(data)
+	elif opCode == WebSocketOpCode.REQUEST_RESPONSE:
+		op('request_responses').clear(keepFirstRow=True)
+		handleResponse(data)
+	elif opCode == WebSocketOpCode.REQUEST_BATCH_RESPONSE:
+		op('request_responses').clear(keepFirstRow=True)
+
+		for res in data['results']:
+			handleResponse(res)
+
+def handleResponse(data):
+	status = data['requestStatus']
+	typ = data['requestType']
+	requestId = data['requestId'] if 'requestId' in data else ''
+
+	if status['result'] == True:
+		op('request_responses').appendRow([typ, requestId, data['responseData']])
+	else:
+		parent().addScriptError(f"Bad OBS request\nCode: {RequestStatus(status['code']).name}\nType: {typ}\nComment: {status['comment']}")
