@@ -1,6 +1,7 @@
 import json
 from hashlib import sha256
 from base64 import b64encode
+from OBSEnums import WebSocketOpCode, EventSubscription, RequestType, RequestBatchExecutionType
 
 class OBSWebSocket:
 	def __init__(self, parentComp):
@@ -11,7 +12,7 @@ class OBSWebSocket:
 	
 	def Identify(self, data):		
 		response = {
-			'op': 1,
+			'op': WebSocketOpCode.IDENTIFY,
 			'd': {
 				'rpcVersion': 1,
 				'eventSubscriptions': self.getSubscriptionBitmask()
@@ -43,19 +44,16 @@ class OBSWebSocket:
 		self.websocket.sendText(json.dumps(message))
 	
 	def getSubscriptionBitmask(self):
-		bitmask = 0
-
-		for n in range(11):
-			bitmask |= 1 << n
+		bitmask = EventSubscription.ALL
 		
 		if self.parentComp.par.Includeinputvolumemeters:
-			bitmask |= 1 << 16
+			bitmask |= EventSubscription.INPUT_VOLUME_METERS
 		if self.parentComp.par.Includeinputactivestatechanged:
-			bitmask |= 1 << 17
+			bitmask |= EventSubscription.INPUT_ACTIVE_STATE_CHANGED
 		if self.parentComp.par.Includeinputshowstatechanged:
-			bitmask |= 1 << 18
+			bitmask |= EventSubscription.INPUT_SHOW_STATE_CHANGED
 		if self.parentComp.par.Includesceneitemtransformchanged:
-			bitmask |= 1 << 19
+			bitmask |= EventSubscription.SCENE_ITEM_TRANSFORM_CHANGED
 		
 		return bitmask
 	

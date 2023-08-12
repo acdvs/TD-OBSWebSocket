@@ -1,4 +1,5 @@
 import json
+from OBSEnums import WebSocketOpCode, RequestStatus
 
 # me - this DAT
 # dat - the DAT that received a message
@@ -13,10 +14,10 @@ def onDisconnect(dat):
 def onReceiveText(dat, rowIndex, message):
 	msg = json.loads(message)
 	data = msg['d']
+	opCode = msg['op']
 
-	if msg['op'] == 0:
+	if opCode == WebSocketOpCode.HELLO:
 		parent().Identify(data)
-	elif msg['op'] == 2:
+	elif opCode == WebSocketOpCode.IDENTIFIED:
 		parent().par.Connected = True
-	elif msg['op'] == 5:
-		parent().HandleEvent(data)
+		parent().HandleEvent(data)		parent().HandleEvent(data)
