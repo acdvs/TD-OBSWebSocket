@@ -29,10 +29,11 @@ It's possible to enable or disable high-volume events while connected to the ser
 
 Two methods on the OBSWebSocket component can be used to send requests to OBS.
 
-- `SendRequest(type, data)` - Sends a single request.
+- `SendRequest(type, id, data)` - Sends a single request
 
   - `type` - A `RequestType` enum value.
   - `data` - A dict containing any input the request requires.
+  - `requestId` - A custom ID string used to track the request
 
 - `SendRequestBatch(data, executionType, haltOnFailure)` - Sends one or more requests together.
 

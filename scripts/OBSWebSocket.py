@@ -63,7 +63,7 @@ class OBSWebSocket:
 		
 		return bitmask
 	
-	def SendRequest(self, typ, data={}):
+	def SendRequest(self, typ, rid=str(uuid4()), data=None):
 		self.parentComp.clearScriptErrors()
 
 		if isinstance(typ, RequestType):
@@ -73,7 +73,7 @@ class OBSWebSocket:
 			'op': WebSocketOpCode.REQUEST,
 			'd': {
 				'requestType': typ,
-				'requestId': str(uuid4()),
+				'requestId': rid,
 				'requestData': data
 			}
 		}
