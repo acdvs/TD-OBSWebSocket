@@ -29,11 +29,11 @@ It's possible to enable or disable high-volume events while connected to the ser
 
 Two methods on the OBSWebSocket component can be used to send requests to OBS.
 
-- `SendRequest(type, id, data)` - Sends a single request
+- `SendRequest(requestType, requestId, requestData)` - Sends a single request
 
-  - `type` - A `RequestType` enum value.
-  - `data` - A dict containing any input the request requires.
-  - `requestId` - A custom ID string used to track the request
+  - `requestType` - A [`RequestType`](scripts/OBSEnums.py#L96)
+  - `requestId` - A custom ID string used to track the request (default = uuid4)
+  - `requestData` - A dict containing any input the request requires (default = `None`)
 
 - `SendRequestBatch(data, executionType, haltOnFailure)` - Sends one or more requests together.
 
@@ -54,7 +54,7 @@ Two methods on the OBSWebSocket component can be used to send requests to OBS.
 
 The `RequestType` and `RequestBatchExecutionType` enums are promoted by the extension and can be easily accessed on the OBSWebSocket component with `OBSWebSocket.RequestType` and `OBSWebSocket.RequestBatchExecutionType` respectively.
 
-Each request type's inputs for the `data` parameter or `requestData` field can be found in the [obs-websocket documentation][1].
+Each request type's input for `requestData` can be found in the [obs-websocket documentation][1].
 
 For batch requests, it is recommended to provide a custom `requestId` with each request. This will help you identify responses in the results table where each one is logged until the next request is sent.
 

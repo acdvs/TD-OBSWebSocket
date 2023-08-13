@@ -33,10 +33,10 @@ def onReceiveText(dat, rowIndex, message):
 
 def handleResponse(data):
 	status = data['requestStatus']
-	typ = data['requestType']
+	requestType = data['requestType']
 	requestId = data['requestId'] if 'requestId' in data else ''
 
 	if status['result'] == True:
-		op('request_responses').appendRow([typ, requestId, data['responseData']])
+		op('request_responses').appendRow([requestType, requestId, data['responseData']])
 	else:
-		parent().addScriptError(f"Bad OBS request\nCode: {RequestStatus(status['code']).name}\nType: {typ}\nComment: {status['comment']}")
+		parent().addScriptError(f"Bad OBS request\nCode: {RequestStatus(status['code']).name}\nType: {requestType}\nComment: {status['comment']}")
