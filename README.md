@@ -10,6 +10,8 @@ A packaged TouchDesigner component that connects to an [OBS](https://obsproject.
 4. If Auto-Reconnect is enabled: the component will connect to the server automatically.  
    If Auto-Reconnect is disabled: enable the Active switch to connect to the server.
 
+Once connected, any event data received will be set in the corresponding parameter. This makes the data easy to consume by, for example, connecting a Parameter Execute DAT to the OBSWebSocket component.
+
 ## Features
 
 ### High-Volume Events
@@ -21,9 +23,7 @@ Several events are considered "high-volume" and must be individually opted into 
 - Input Show State Changed
 - Scene Item Transform Changed
 
-Once connected, any event data received will be set in the corresponding parameter. This makes the data easy to consume by, for example, connecting a Parameter Execute DAT to the OBSWebSocket COMP.
-
-It's possible to enable or disable high-volume events while connected to the server. This will force a reconnect, however.
+It's possible to enable or disable high-volume events while connected to the server, though doing so will force a reconnect.
 
 ### Sending Requests
 
@@ -35,28 +35,28 @@ Two methods on the OBSWebSocket component can be used to send requests to OBS.
   - `requestId` - A custom ID string used to track the request (default = uuid4)
   - `requestData` - A dict containing any input the request requires (default = `None`)
 
-- `SendRequestBatch(data, executionType, haltOnFailure)` - Sends one or more requests together.
+- `SendRequestBatch(data, executionType, haltOnFailure)` - Sends one or more requests together
 
   - `data` - An array of dicts with the form:
 
     ```python
     {
-        "requestType": RequestType or str,
-        # Optional. A custom string used to track the request.
+        "requestType": RequestType,
+        # A custom ID string used to track the request (optional)
         "requestId": str,
-        # Optional. A dict containing any input the request requires.
-        "requestData": object
+        # A dict containing any input the request requires (optional)
+        "requestData": dict
     }
     ```
 
-  - `executionType` - A `RequestBatchExecutionType` enum value. Defaults to `SERIAL_REALTIME` for one-by-one execution.
-  - `haltOnFailure` - Stops the batch if one request fails. Defaults to `False`.
+  - `executionType` - A [`RequestBatchExecutionType`](scripts/OBSEnums.py#L32) (default = `SERIAL_REALTIME`)
+  - `haltOnFailure` - Stops the batch if one request fails (default = `False`)
 
-The `RequestType` and `RequestBatchExecutionType` enums are promoted by the extension and can be easily accessed on the OBSWebSocket component with `OBSWebSocket.RequestType` and `OBSWebSocket.RequestBatchExecutionType` respectively.
+The `RequestType` and `RequestBatchExecutionType` enums are promoted by the extension and can be easily accessed on the component with `op.OBSWebSocket.[EnumName]`. See the [source](scripts/OBSEnums.py) for all enums and values.
 
 Each request type's input for `requestData` can be found in the [obs-websocket documentation][1].
 
-For batch requests, it is recommended to provide a custom `requestId` with each request. This will help you identify responses in the results table where each one is logged until the next request is sent.
+For batch requests, it's recommended to provide a custom `requestId` with each request. This will help you identify responses in the results table (found at OBSWebSocket/out1) where each one is logged until the next request is sent.
 
 ## Contributing
 
