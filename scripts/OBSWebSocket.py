@@ -2,7 +2,6 @@ import json
 from hashlib import sha256
 from base64 import b64encode
 from uuid import uuid4
-from collections.abc import Sequence
 from OBSEnums import WebSocketOpCode, EventSubscription, RequestType, RequestBatchExecutionType
 
 class OBSWebSocket:
@@ -84,7 +83,7 @@ class OBSWebSocket:
 	def SendRequestBatch(self, data, executionType=RequestBatchExecutionType.SERIAL_REALTIME, haltOnFailure=False):
 		self.parentComp.clearScriptErrors()
 
-		if isinstance(data, Sequence):
+		if isinstance(data, collections.abc.Sequence):
 			for request in data:
 				if isinstance(request['requestType'], RequestType):
 					request['requestType'] = request['requestType'].value
