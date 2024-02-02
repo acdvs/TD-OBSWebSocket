@@ -101,16 +101,10 @@ class OBSWebSocket:
 		self.websocket.sendText(json.dumps(request))
 	
 	def HandleEvent(self, data):
+		if not 'eventData' in data:
+			return
+	
 		name = data['eventType']
-		hasData = 'eventData' in data
-	
-		if name == 'ExitStarted':
-			self.parentComp.par.Connected = False
-			return
-		elif not hasData:
-			return
-	
-		data = data['eventData']
 		func = None
 	
 		try:
@@ -119,8 +113,9 @@ class OBSWebSocket:
 			print(f'OBSWebSocket - No event function to call for {name}')
 	
 		if callable(func):
+			eventData = data['eventData']
 			param = name.lower().capitalize()
-			func(data, param)
+			func(eventData, param)
 	
 	'''
 	GENERAL EVENTS
@@ -171,10 +166,10 @@ class OBSWebSocket:
 		self.parentComp.par[param] = data
 	
 	def CurrentProgramSceneChanged(self, data, param):
-		self.parentComp.par[param] = data['sceneName']
+		self.parentComp.par[param] = data
 	
 	def CurrentPreviewSceneChanged(self, data, param):
-		self.parentComp.par[param] = data['sceneName']
+		self.parentComp.par[param] = data
 	
 	def SceneListChanged(self, data, param):
 		self.parentComp.par[param] = data['scenes']
@@ -187,7 +182,7 @@ class OBSWebSocket:
 		self.parentComp.par[param] = data
 	
 	def InputRemoved(self, data, param):
-		self.parentComp.par[param] = data['inputName']
+		self.parentComp.par[param] = data
 	
 	def InputNameChanged(self, data, param):
 		self.parentComp.par[param] = data
@@ -227,19 +222,19 @@ class OBSWebSocket:
 	'''
 	
 	def CurrentSceneTransitionChanged(self, data, param):
-		self.parentComp.par[param] = data['transitionName']
+		self.parentComp.par[param] = data
 	
 	def CurrentSceneTransitionDurationChanged(self, data, param):
 		self.parentComp.par[param] = data['transitionDuration']
 	
 	def SceneTransitionStarted(self, data, param):
-		self.parentComp.par[param] = data['transitionName']
+		self.parentComp.par[param] = data
 	
 	def SceneTransitionEnded(self, data, param):
-		self.parentComp.par[param] = data['transitionName']
+		self.parentComp.par[param] = data
 	
 	def SceneTransitionVideoEnded(self, data, param):
-		self.parentComp.par[param] = data['transitionName']
+		self.parentComp.par[param] = data
 	
 	'''
 	FILTER EVENTS
