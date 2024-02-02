@@ -123,6 +123,19 @@ class OBSWebSocket:
 			func(data, param)
 	
 	'''
+	GENERAL EVENTS
+	'''
+
+	def ExitStarted(self, data, param):
+		self.parentComp.par[param] = True
+
+	def VendorEvent(self, data, param):
+		self.parentComp.par[param] = data
+
+	def CustomEvent(self, data, param):
+		self.parentComp.par[param] = data['eventData']
+	
+	'''
 	CONFIG EVENTS
 	'''
 	
