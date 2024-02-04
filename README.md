@@ -1,14 +1,14 @@
 # TD-OBSWebSocket
 
-A packaged TouchDesigner component that connects to an [OBS](https://obsproject.com) WebSocket server and receives all available events.
+A packaged TouchDesigner component that connects to an [obs-websocket][5] server and receives all available events.
 
 ## Basic Usage
 
-1. Download the .tox file from the `/dist` folder and place it in a location convenient for your project.
+1. Download the .tox file from the [Releases][4] page and place it in a location convenient for your project.
 2. Drag and drop it into your project.
 3. Set the Address and Port of the server in the Connection parameters tab. Set the Password if there is one.
-4. If Auto-Reconnect is enabled: the component will connect to the server automatically.  
-   If Auto-Reconnect is disabled: enable the Active switch to connect to the server.
+4. If Auto-Reconnect is enabled, the component will connect to the server automatically.  
+   If Auto-Reconnect is disabled, enable the Active switch to connect to the server.
 
 Once connected, any event data received will be set in the corresponding parameter. This makes the data easy to consume by, for example, connecting a Parameter Execute DAT to the OBSWebSocket component.
 
@@ -29,7 +29,7 @@ It's possible to enable or disable high-volume events while connected to the ser
 
 Two methods on the OBSWebSocket component can be used to send requests to OBS.
 
-`SendRequest(requestType, requestId, requestData)`
+`SendRequest(requestType, requestId, requestData)`  
 Sends a single request
 
 | Parameter | Data type | Default value | Description | Optional |
@@ -38,7 +38,7 @@ Sends a single request
 | `requestId` | string | \<uuid4> | A custom ID used to track the request | :white_check_mark: |
 | `requestData` | dict | None | Any input the request requires | :white_check_mark: |
 
-`SendRequestBatch(data, executionType, haltOnFailure)`
+`SendRequestBatch(data, executionType, haltOnFailure)`  
 Sends one or more requests together
 
 | Parameter | Data type | Default value | Description | Optional |
@@ -55,8 +55,10 @@ For batch requests, it's recommended to provide a custom `requestId` with each r
 
 ## Contributing
 
-A custom Release component can be found in the project that automates the packaging, so simply make changes, increase the Version parameter (following [semver](https://semver.org)), and click the Package button.
+If you are considering adding a new feature or change to the project, first create a feature request issue to document it and get feedback before proceeding. If you are considering fixing a bug, first open a bug report issue or search for an existing one.
 
 [1]: https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#general-requests
 [2]: scripts/OBSEnums.py#L96
 [3]: scripts/OBSEnums.py#L32
+[4]: https://github.com/acdvs/TD-OBSWebSocket/releases
+[5]: https://github.com/obsproject/obs-websocket
