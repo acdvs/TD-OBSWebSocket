@@ -1,3 +1,4 @@
+import collections
 import json
 from hashlib import sha256
 from base64 import b64encode
@@ -252,7 +253,7 @@ class OBSWebSocket:
 	def SourceFilterNameChanged(self, data, param):
 		self.parentComp.par[param] = data
 
-	def SourceFilterSettingsChanged(sefl, data, param):
+	def SourceFilterSettingsChanged(self, data, param):
 		self.parentComp.par[param] = data
 	
 	def SourceFilterEnableStateChanged(self, data, param):
