@@ -1,13 +1,10 @@
 import webbrowser
 
-# me - this DAT
-# par - the Par object that has changed
-# val - the current value
-# prev - the previous value
-# 
-# Make sure the corresponding toggle is enabled in the Parameter Execute DAT.
+from component_builder import buildEventPars
 
-def onValueChange(par, val, prev):
+docsUrl = 'https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md'
+
+def onValueChange(par):
 	if (par.name == 'Includeinputvolumemeters' or
 			par.name == 'Includeinputactivestatechanged' or
 			par.name == 'Includeinputshowstatechanged' or
@@ -16,5 +13,12 @@ def onValueChange(par, val, prev):
 
 def onPulse(par):
 	if par.name == 'Opendocumentation':
-		url = 'https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md'
-		webbrowser.open_new_tab(url)
+		webbrowser.open_new_tab(docsUrl)
+		return
+	
+	if par.name == 'Updatepars':
+		for page in parent().customPages:
+			if page.index >= 1:
+				page.destroy()
+		
+		buildEventPars()
