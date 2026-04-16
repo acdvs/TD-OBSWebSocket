@@ -4,11 +4,11 @@ import urllib.request
 
 url = 'https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json'
 
-def buildEventPars(obsWebSocketVersion):
+def buildEventPars():
     with urllib.request.urlopen(url) as res:
         data = json.load(res)
 
-    wsVersion = parseVersionString(obsWebSocketVersion)
+    wsVersion = parseVersionString(parent().RecentWsVersion)
     events = data['events']
 
     for event in events:

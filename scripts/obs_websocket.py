@@ -21,8 +21,9 @@ class OBSWebSocket:
 		op('request_responses').clear(keepFirstRow=True)
 	
 	def Identify(self, data):
-		if len(self.parentComp.customPages) == 1:
-			buildEventPars(data['obsWebSocketVersion'])
+		self.RecentWsVersion = data['obsWebSocketVersion']
+
+		buildEventPars()
 
 		response = {
 			'op': WebSocketOpCode.IDENTIFY,
