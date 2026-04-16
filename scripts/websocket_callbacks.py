@@ -1,5 +1,5 @@
 import json
-from OBSEnums import WebSocketOpCode, RequestStatus
+from obs_enums import WebSocketOpCode, RequestStatus
 
 # me - this DAT
 # dat - the DAT that received a message

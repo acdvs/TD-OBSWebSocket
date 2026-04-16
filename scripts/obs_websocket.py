@@ -3,7 +3,7 @@ import json
 from hashlib import sha256
 from base64 import b64encode
 from uuid import uuid4
-from OBSEnums import WebSocketOpCode, EventSubscription, RequestType, RequestBatchExecutionType
+from obs_enums import WebSocketOpCode, EventSubscription, RequestType, RequestBatchExecutionType
 
 class OBSWebSocket:
 	def __init__(self, parentComp):
@@ -104,5 +104,8 @@ class OBSWebSocket:
 	def HandleEvent(self, data):
 		paramName = data['eventType'].lower().capitalize()
 		eventData = data['eventData'] if 'eventData' in data else True
-		
-		self.parentComp.par[paramName] = eventData
+
+		if 'eventData' in data:
+			self.parentComp.par[paramName] = eventData
+		else:
+			self.parentComp.par[paramName].pulse()
