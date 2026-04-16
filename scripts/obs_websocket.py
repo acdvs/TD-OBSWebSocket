@@ -3,7 +3,9 @@ import json
 from hashlib import sha256
 from base64 import b64encode
 from uuid import uuid4
+
 from obs_enums import WebSocketOpCode, EventSubscription, RequestType, RequestBatchExecutionType
+from component_builder import buildEventPars, eventTypeToName
 
 class OBSWebSocket:
 	def __init__(self, parentComp):
@@ -15,9 +17,13 @@ class OBSWebSocket:
 		
 		self.parentComp.par.Connected = False
 		self.websocket.clear()
+
 		op('request_responses').clear(keepFirstRow=True)
 	
-	def Identify(self, data):		
+	def Identify(self, data):
+		if len(self.parentComp.customPages) == 1:
+			buildEventPars(data['obsWebSocketVersion'])
+
 		response = {
 			'op': WebSocketOpCode.IDENTIFY,
 			'd': {
@@ -102,10 +108,10 @@ class OBSWebSocket:
 		self.websocket.sendText(json.dumps(request))
 	
 	def HandleEvent(self, data):
-		paramName = data['eventType'].lower().capitalize()
+		paramName = eventTypeToName(data['eventType'])
 		eventData = data['eventData'] if 'eventData' in data else True
 
 		if 'eventData' in data:
-			self.parentComp.par[paramName] = eventData
+			self.parentComp.par[paramName].val = eventData
 		else:
 			self.parentComp.par[paramName].pulse()
