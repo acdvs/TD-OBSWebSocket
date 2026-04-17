@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Tuple
+from typing import Tuple, cast
 import urllib.request
 
 Version = Tuple[int, int, int]
@@ -63,4 +63,4 @@ def wsVersionHasEvent(wsVersion: str, eventVersion: str):
 
 def parseVersionString(version: str):
 	parsed = version.split('.')
-	return typing.cast(Version, parsed)
+	return cast(Version, parsed)
