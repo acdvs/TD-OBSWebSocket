@@ -8,7 +8,7 @@ Version = Tuple[int, int, int]
 url = "https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json"
 
 
-def buildEventPars(wsVersion: str | None):
+def buildEventPars(wsVersion: str = None):
     with urllib.request.urlopen(url) as res:
         data = json.load(res)
 
