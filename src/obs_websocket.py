@@ -27,9 +27,7 @@ class OBSWebSocket(baseCOMP):
 		responses.clear(keepFirstRow=True)
 
 	def Identify(self, data):
-		self.RecentWsVersion = data["obsWebSocketVersion"]
-
-		buildEventPars(self.RecentWsVersion)
+		buildEventPars(data["obsWebSocketVersion"])
 
 		response = {
 			"op": WebSocketOpCode.IDENTIFY,

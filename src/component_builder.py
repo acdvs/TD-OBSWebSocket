@@ -8,14 +8,14 @@ Version = Tuple[int, int, int]
 parentComp = parent().asType(baseCOMP)
 url = 'https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json'
 
-def buildEventPars(wsVersion: str):
+def buildEventPars(wsVersion: str | None):
 	with urllib.request.urlopen(url) as res:
 		data = json.load(res)
 
 	events = data['events']
 
 	for event in events:
-		if not wsVersionHasEvent(wsVersion, event['initialVersion']):
+		if wsVersion and not wsVersionHasEvent(wsVersion, event['initialVersion']):
 			continue
 
 		page = createOrGetPage(event['category'])

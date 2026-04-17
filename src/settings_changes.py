@@ -18,9 +18,9 @@ def onPulse(par: Par):
 		webbrowser.open_new_tab(docsUrl)
 		return
 	
-	if par.name == 'Updatepars' and module.RecentWsVersion:		
+	if par.name == 'Updatepars':
 		for page in parent().customPages:
 			if page.index >= 1:
 				page.destroy()
 		
-		buildEventPars(module.RecentWsVersion)
+		buildEventPars()
