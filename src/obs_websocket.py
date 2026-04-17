@@ -35,23 +35,18 @@ class OBSWebSocket(baseCOMP):
 		}
 
 		if "authentication" in data:
-			secret = b64encode(
-				sha256(
-					(
-						self.parentComp.par.Password + data["authentication"]["salt"]
-					).encode()
-				).digest()
-			)
-
-			auth = b64encode(
-				sha256(
-					(secret.decode() + data["authentication"]["challenge"]).encode()
-				).digest()
-			).decode()
+			secret = self.toHashedBase64String(self.parentComp.par.Password + data["authentication"]["salt"])
+			auth = self.toHashedBase64String(secret + data["authentication"]["challenge"])
 
 			response["d"]["authentication"] = auth
 
 		self.websocket.sendText(json.dumps(response))
+	
+	def toHashedBase64String(self, data: str):
+		bytesData = data.encode()
+		hashedData = sha256(bytesData).digest()
+		base64Data = b64encode(hashedData)
+		return base64Data.decode()
 
 	def Reidentify(self):
 		message = {"eventSubscriptions": self.getSubscriptionBitmask()}
