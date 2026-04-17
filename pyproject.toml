@@ -1,0 +1,5 @@
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = []
