@@ -1,33 +1,30 @@
 import json
 
 from obs_enums import WebSocketOpCode, RequestStatus
+from obs_websocket import OBSWebSocket
 
-# me - this DAT
-# dat - the DAT that received a message
-# rowIndex - the row number the message was placed into
-# message - a unicode representation of the text
-# 
-# Only text frame messages will be handled in this function.
+module = parent().asType(OBSWebSocket)
+responsesOP = op('request_responses').asType(tableDAT)
 
 def onDisconnect(dat):
 	parent().par.Connected = False
 
-def onReceiveText(dat, rowIndex, message):
+def onReceiveText(dat, rowIndex, message: str):
 	msg = json.loads(message)
 	data = msg['d']
 	opCode = msg['op']
 
 	if opCode == WebSocketOpCode.HELLO:
-		parent().Identify(data)
+		module.Identify(data)
 	elif opCode == WebSocketOpCode.IDENTIFIED:
-		parent().par.Connected = True
+		module.par.Connected = True
 	elif opCode == WebSocketOpCode.EVENT:
-		parent().HandleEvent(data)
+		module.HandleEvent(data)
 	elif opCode == WebSocketOpCode.REQUEST_RESPONSE:
-		op('request_responses').clear(keepFirstRow=True)
+		responsesOP.clear(keepFirstRow=True)
 		handleResponse(data)
 	elif opCode == WebSocketOpCode.REQUEST_BATCH_RESPONSE:
-		op('request_responses').clear(keepFirstRow=True)
+		responsesOP.clear(keepFirstRow=True)
 
 		for res in data['results']:
 			handleResponse(res)
@@ -37,7 +34,8 @@ def handleResponse(data):
 	requestType = data['requestType']
 	requestId = data['requestId'] if 'requestId' in data else ''
 
-	if status['result'] == True:
-		op('request_responses').appendRow([requestType, requestId, data['responseData']])
+	if status['result']:
+		responsesOP.appendRow([requestType, requestId, data['responseData']])
 	else:
-		parent().addScriptError(f"Bad OBS request\nCode: {RequestStatus(status['code']).name}\nType: {requestType}\nComment: {status['comment']}")
+		message = "Bad OBS request\nCode: {}\nType: {}\nComment: {}".format(RequestStatus(status['code']).name, requestType, status['comment'])
+		module.addScriptError(message)
