@@ -1,17 +1,15 @@
 import webbrowser
 
 from component_builder import buildEventPars
-from obs_websocket import OBSWebSocket
 
 docsUrl = 'https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md'
-module = parent().asType(OBSWebSocket)
 
 def onValueChange(par: Par):
 	if (par.name == 'Includeinputvolumemeters' or
 			par.name == 'Includeinputactivestatechanged' or
 			par.name == 'Includeinputshowstatechanged' or
 			par.name == 'Includesceneitemtransformchanged'):
-		module.Reidentify()
+		parent().Reidentify()
 
 def onPulse(par: Par):
 	if par.name == 'Opendocumentation':

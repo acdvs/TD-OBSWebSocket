@@ -5,7 +5,6 @@ import urllib.request
 
 Version = Tuple[int, int, int]
 
-parentComp = parent().asType(baseCOMP)
 url = 'https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json'
 
 def buildEventPars(wsVersion: str | None):
@@ -32,11 +31,11 @@ def buildEventPars(wsVersion: str | None):
 
 def createOrGetPage(catName: str):
 	pageName = labelize(catName.capitalize())
-	pages = parentComp.customPages
+	pages = parent().customPages
 	page = next((page for page in pages if page == pageName), None)
 
 	if not page:
-		page = parentComp.appendCustomPage(pageName)
+		page = parent().appendCustomPage(pageName)
 	
 	return page
 
