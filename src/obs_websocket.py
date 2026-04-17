@@ -15,7 +15,7 @@ from obs_enums import (
 class OBSWebSocket(baseCOMP):
 	def __init__(self, parentComp: baseCOMP):
 		self.parentComp = parentComp
-		self.websocket = op("websocket").asType(websocketDAT)
+		self.websocket = op("websocket")
 
 		self.RequestType = RequestType
 		self.RequestBatchExecutionType = RequestBatchExecutionType
@@ -23,8 +23,7 @@ class OBSWebSocket(baseCOMP):
 		self.parentComp.par.Connected = False
 		self.websocket.clear()
 
-		responses = op("request_responses").asType(tableDAT)
-		responses.clear(keepFirstRow=True)
+		op("responses").clear(keepFirstRow=True)
 
 	def Identify(self, data):
 		buildEventPars(data["obsWebSocketVersion"])
