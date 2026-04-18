@@ -5,39 +5,39 @@ from typing import cast
 from obs_schema import Event, loadSchema
 
 
-def buildEventPars(wsVersion: Version = None):
+def buildEventPars(ws_version: Version = None):
     schema = loadSchema()
     events: list[Event] = schema["events"]
 
     for event in events:
         page = createOrGetPage(event["category"])
-        parName = eventTypeToName(event["eventType"])
-        parLabel = labelize(event["eventType"])
+        par_name = eventTypeToName(event["eventType"])
+        par_label = labelize(event["eventType"])
 
         if len(event["dataFields"]) == 0:
-            par = page.appendPulse(parName, label=parLabel)
+            par = page.appendPulse(par_name, label=par_label)
         else:
-            par = page.appendPython(parName, label=parLabel)
+            par = page.appendPython(par_name, label=par_label)
 
         par.help = event["description"]
         par.readOnly = True
 
-        if wsVersion and wsVersion < Version(event["initialVersion"]):
+        if ws_version and ws_version < Version(event["initialVersion"]):
             par.enable = False
             par.help = (
                 "EVENT NOT SUPPORTED IN ACTIVE OBS WEBSOCKET VERSION\n\n" + par.help
             )
 
 
-def createOrGetPage(catName: str):
-    parentOP = parent().asType(baseCOMP)
+def createOrGetPage(cat_name: str):
+    parent_op = parent().asType(baseCOMP)
 
-    pageName = labelize(catName.capitalize())
-    pages = parentOP.customPages
-    page = next((page for page in pages if page == pageName), None)
+    page_name = labelize(cat_name.capitalize())
+    pages = parent_op.customPages
+    page = next((page for page in pages if page == page_name), None)
 
     if not page:
-        page = parentOP.appendCustomPage(pageName)
+        page = parent_op.appendCustomPage(page_name)
 
     return page
 
@@ -51,5 +51,5 @@ def labelize(text: str):
     return label
 
 
-def eventTypeToName(eventType: str):
-    return eventType.lower().capitalize()
+def eventTypeToName(event_type: str):
+    return event_type.lower().capitalize()

@@ -6,9 +6,9 @@ from obs_enums import WebSocketOpCode
 
 
 def loadSchema():
-    schemaUrl = parent().fetch("schema_url")
+    schema_url = parent().fetch("schema_url")
 
-    with urllib.request.urlopen(schemaUrl) as res:
+    with urllib.request.urlopen(schema_url) as res:
         return json.load(res)
 
 

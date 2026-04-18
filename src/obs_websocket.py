@@ -16,22 +16,22 @@ from obs_schema import EventMessage, HelloMessage
 
 
 class OBSWebSocket:
-    def __init__(self, parentOP: baseCOMP):
-        self.parentOP = parentOP
-        self.websocketOP = op("websocket").asType(websocketDAT)
-        self.responsesOP = op("responses").asType(tableDAT)
+    def __init__(self, parent_op: baseCOMP):
+        self.parent_op = parent_op
+        self.websocket_op = op("websocket").asType(websocketDAT)
+        self.responses_op = op("responses").asType(tableDAT)
 
         self.RequestType = RequestType
         self.RequestBatchExecutionType = RequestBatchExecutionType
 
-        self.parentOP.par.Connected = False
+        self.parent_op.par.Connected = False
 
-        self.websocketOP.clear()
-        self.responsesOP.clear(keepFirstRow=True)
+        self.websocket_op.clear()
+        self.responses_op.clear(keepFirstRow=True)
 
     def Identify(self, data: HelloMessage):
-        obsWebSocketVersion = Version(data["obsWebSocketVersion"])
-        buildEventPars(obsWebSocketVersion)
+        obs_websocket_version = Version(data["obsWebSocketVersion"])
+        buildEventPars(obs_websocket_version)
 
         response = {
             "op": WebSocketOpCode.IDENTIFY,
@@ -40,7 +40,7 @@ class OBSWebSocket:
 
         if "authentication" in data:
             secret = self.toHashedBase64String(
-                self.parentOP.par.Password + data["authentication"]["salt"]
+                self.parent_op.par.Password + data["authentication"]["salt"]
             )
             auth = self.toHashedBase64String(
                 secret + data["authentication"]["challenge"]
@@ -48,35 +48,35 @@ class OBSWebSocket:
 
             response["d"]["authentication"] = auth
 
-        self.websocketOP.sendText(json.dumps(response))
+        self.websocket_op.sendText(json.dumps(response))
 
     def toHashedBase64String(self, data: str):
-        bytesData = data.encode()
-        hashedData = sha256(bytesData).digest()
-        base64Data = b64encode(hashedData)
-        return base64Data.decode()
+        bytes_data = data.encode()
+        hashed_data = sha256(bytes_data).digest()
+        base64_data = b64encode(hashed_data)
+        return base64_data.decode()
 
     def Reidentify(self):
         message = {"eventSubscriptions": self.getSubscriptionBitmask()}
 
-        self.websocketOP.sendText(json.dumps(message))
+        self.websocket_op.sendText(json.dumps(message))
 
     def getSubscriptionBitmask(self):
         bitmask = EventSubscription.ALL
 
-        if self.parentOP.par.Includeinputvolumemeters:
+        if self.parent_op.par.Includeinputvolumemeters:
             bitmask |= EventSubscription.INPUT_VOLUME_METERS
-        if self.parentOP.par.Includeinputactivestatechanged:
+        if self.parent_op.par.Includeinputactivestatechanged:
             bitmask |= EventSubscription.INPUT_ACTIVE_STATE_CHANGED
-        if self.parentOP.par.Includeinputshowstatechanged:
+        if self.parent_op.par.Includeinputshowstatechanged:
             bitmask |= EventSubscription.INPUT_SHOW_STATE_CHANGED
-        if self.parentOP.par.Includesceneitemtransformchanged:
+        if self.parent_op.par.Includesceneitemtransformchanged:
             bitmask |= EventSubscription.SCENE_ITEM_TRANSFORM_CHANGED
 
         return bitmask
 
     def SendRequest(self, typ, rid=str(uuid4()), data=None):
-        self.parentOP.clearScriptErrors()
+        self.parent_op.clearScriptErrors()
 
         if isinstance(typ, RequestType):
             typ = typ.value
@@ -86,15 +86,15 @@ class OBSWebSocket:
             "d": {"requestType": typ, "requestId": rid, "requestData": data},
         }
 
-        self.websocketOP.sendText(json.dumps(request))
+        self.websocket_op.sendText(json.dumps(request))
 
     def SendRequestBatch(
         self,
         data,
-        executionType=RequestBatchExecutionType.SERIAL_REALTIME,
-        haltOnFailure=False,
+        execution_type=RequestBatchExecutionType.SERIAL_REALTIME,
+        halt_on_failure=False,
     ):
-        self.parentOP.clearScriptErrors()
+        self.parent_op.clearScriptErrors()
 
         if isinstance(data, abc.Sequence):
             for request in data:
@@ -105,18 +105,18 @@ class OBSWebSocket:
             "op": WebSocketOpCode.REQUEST_BATCH,
             "d": {
                 "requestId": str(uuid4()),
-                "haltOnFailure": haltOnFailure,
-                "executionType": executionType,
+                "haltOnFailure": halt_on_failure,
+                "executionType": execution_type,
                 "requests": data,
             },
         }
 
-        self.websocketOP.sendText(json.dumps(request))
+        self.websocket_op.sendText(json.dumps(request))
 
     def HandleEvent(self, data: EventMessage):
-        paramName = eventTypeToName(data["eventType"])
+        param_name = eventTypeToName(data["eventType"])
 
         if "eventData" in data:
-            self.parentOP.par[paramName].val = data["eventData"]
+            self.parent_op.par[param_name].val = data["eventData"]
         else:
-            self.parentOP.par[paramName].pulse()
+            self.parent_op.par[param_name].pulse()

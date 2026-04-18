@@ -11,15 +11,15 @@ def onValueChange(par: Par):
         or par.name == "Includeinputshowstatechanged"
         or par.name == "Includesceneitemtransformchanged"
     ):
-        parentOP = parent().asType(OBSWebSocket)
-        parentOP.Reidentify()
+        parent_op = parent().asType(OBSWebSocket)
+        parent_op.Reidentify()
 
 
 def onPulse(par: Par):
-    schemaUrl = parent().fetch("docs_url")
+    schema_url = parent().fetch("docs_url")
 
     if par.name == "Opendocumentation":
-        webbrowser.open_new_tab(schemaUrl)
+        webbrowser.open_new_tab(schema_url)
         return
 
     if par.name == "Updatepars":
