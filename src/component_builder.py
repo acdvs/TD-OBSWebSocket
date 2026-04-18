@@ -1,9 +1,7 @@
-import json
+from packaging.version import Version
 import re
 from typing import Tuple, cast
 import urllib.request
-
-Version = Tuple[int, int, int]
 
 schema = None
 schemaUrl = "https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json"
@@ -12,7 +10,7 @@ with urllib.request.urlopen(schemaUrl) as res:
     schema = json.load(res)
 
 
-def buildEventPars(wsVersion: str = None):
+def buildEventPars(wsVersion: Version = None):
     events = schema["events"]
 
     for event in events:
@@ -28,7 +26,7 @@ def buildEventPars(wsVersion: str = None):
         par.help = event["description"]
         par.readOnly = True
 
-        if wsVersion and not wsVersionHasEvent(wsVersion, event["initialVersion"]):
+        if wsVersion and wsVersion < Version(event["initialVersion"]):
             par.enable = False
             par.help = (
                 "EVENT NOT SUPPORTED IN ACTIVE OBS WEBSOCKET VERSION\n\n" + par.help
@@ -59,22 +57,3 @@ def labelize(text: str):
 
 def eventTypeToName(eventType: str):
     return eventType.lower().capitalize()
-
-
-def wsVersionHasEvent(wsVersion: str, eventVersion: str):
-    wsVersions = parseVersionString(wsVersion)
-    eventVersions = parseVersionString(eventVersion)
-
-    if (
-        wsVersions[0] < eventVersions[0]
-        or wsVersions[1] < eventVersions[1]
-        or wsVersions[2] < eventVersions[2]
-    ):
-        return False
-
-    return True
-
-
-def parseVersionString(version: str):
-    parsed = version.split(".")
-    return cast(Version, parsed)

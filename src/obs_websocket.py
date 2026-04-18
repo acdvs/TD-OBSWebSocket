@@ -2,6 +2,7 @@ from base64 import b64encode
 from collections import abc
 from hashlib import sha256
 import json
+from packaging.version import Version
 from uuid import uuid4
 
 from component_builder import buildEventPars, eventTypeToName
@@ -28,7 +29,8 @@ class OBSWebSocket:
         self.responsesOP.clear(keepFirstRow=True)
 
     def Identify(self, data):
-        buildEventPars(data["obsWebSocketVersion"])
+        obsWebSocketVersion = Version(data["obsWebSocketVersion"])
+        buildEventPars(obsWebSocketVersion)
 
         response = {
             "op": WebSocketOpCode.IDENTIFY,
