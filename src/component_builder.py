@@ -5,14 +5,15 @@ import urllib.request
 
 Version = Tuple[int, int, int]
 
-url = "https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json"
+schema = None
+schemaUrl = "https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json"
+
+with urllib.request.urlopen(schemaUrl) as res:
+    schema = json.load(res)
 
 
 def buildEventPars(wsVersion: str = None):
-    with urllib.request.urlopen(url) as res:
-        data = json.load(res)
-
-    events = data["events"]
+    events = schema["events"]
 
     for event in events:
         if wsVersion and not wsVersionHasEvent(wsVersion, event["initialVersion"]):
