@@ -1,6 +1,7 @@
 import json
 
 from obs_enums import WebSocketOpCode, RequestStatus
+from obs_websocket import OBSWebSocket
 
 
 def onDisconnect(dat):
@@ -8,36 +9,41 @@ def onDisconnect(dat):
 
 
 def onReceiveText(dat, rowIndex, message: str):
+    parentOP = parent().asType(OBSWebSocket)
+    responsesOP = op("responses").asType(tableDAT)
+
     msg = json.loads(message)
     data = msg["d"]
     opCode = msg["op"]
 
     if opCode == WebSocketOpCode.HELLO:
-        parent().Identify(data)
+        parentOP.Identify(data)
     elif opCode == WebSocketOpCode.IDENTIFIED:
-        parent().par.Connected = True
+        parentOP.par.Connected = True
     elif opCode == WebSocketOpCode.EVENT:
-        parent().HandleEvent(data)
+        parentOP.HandleEvent(data)
     elif opCode == WebSocketOpCode.REQUEST_RESPONSE:
-        op("responses").clear(keepFirstRow=True)
+        responsesOP.clear(keepFirstRow=True)
         handleResponse(data)
     elif opCode == WebSocketOpCode.REQUEST_BATCH_RESPONSE:
-        op("responses").clear(keepFirstRow=True)
+        responsesOP.clear(keepFirstRow=True)
 
         for res in data["results"]:
             handleResponse(res)
 
 
 def handleResponse(data):
+    responsesOP = op("responses").asType(tableDAT)
+
     status = data["requestStatus"]
     requestType = data["requestType"]
     requestId = data["requestId"] if "requestId" in data else ""
 
     if status["result"]:
-        op("responses").appendRow([requestType, requestId, data["responseData"]])
+        responsesOP.appendRow([requestType, requestId, data["responseData"]])
     else:
         requestStatus = RequestStatus(status["code"]).name
         message = "Bad OBS request\nCode: {}\nType: {}\nComment: {}".format(
             requestStatus, requestType, status["comment"]
         )
-        parent().addScriptError(message)
+        responsesOP.addScriptError(message)

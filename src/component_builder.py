@@ -32,12 +32,14 @@ def buildEventPars(wsVersion: str = None):
 
 
 def createOrGetPage(catName: str):
+    parentOP = parent().asType(baseCOMP)
+
     pageName = labelize(catName.capitalize())
-    pages = parent().customPages
+    pages = parentOP.customPages
     page = next((page for page in pages if page == pageName), None)
 
     if not page:
-        page = parent().appendCustomPage(pageName)
+        page = parentOP.appendCustomPage(pageName)
 
     return page
 

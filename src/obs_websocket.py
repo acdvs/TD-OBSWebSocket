@@ -13,18 +13,19 @@ from obs_enums import (
 )
 
 
-class OBSWebSocket(baseCOMP):
-    def __init__(self, parentComp: baseCOMP):
-        self.parentComp = parentComp
-        self.websocket = op("websocket")
+class OBSWebSocket:
+    def __init__(self, parentOP: baseCOMP):
+        self.parentOP = parentOP
+        self.websocketOP = op("websocket").asType(websocketDAT)
+        self.responsesOP = op("responses").asType(tableDAT)
 
         self.RequestType = RequestType
         self.RequestBatchExecutionType = RequestBatchExecutionType
 
-        self.parentComp.par.Connected = False
-        self.websocket.clear()
+        self.parentOP.par.Connected = False
 
-        op("responses").clear(keepFirstRow=True)
+        self.websocketOP.clear()
+        self.responsesOP.clear(keepFirstRow=True)
 
     def Identify(self, data):
         buildEventPars(data["obsWebSocketVersion"])
@@ -36,7 +37,7 @@ class OBSWebSocket(baseCOMP):
 
         if "authentication" in data:
             secret = self.toHashedBase64String(
-                self.parentComp.par.Password + data["authentication"]["salt"]
+                self.parentOP.par.Password + data["authentication"]["salt"]
             )
             auth = self.toHashedBase64String(
                 secret + data["authentication"]["challenge"]
@@ -44,7 +45,7 @@ class OBSWebSocket(baseCOMP):
 
             response["d"]["authentication"] = auth
 
-        self.websocket.sendText(json.dumps(response))
+        self.websocketOP.sendText(json.dumps(response))
 
     def toHashedBase64String(self, data: str):
         bytesData = data.encode()
@@ -55,24 +56,24 @@ class OBSWebSocket(baseCOMP):
     def Reidentify(self):
         message = {"eventSubscriptions": self.getSubscriptionBitmask()}
 
-        self.websocket.sendText(json.dumps(message))
+        self.websocketOP.sendText(json.dumps(message))
 
     def getSubscriptionBitmask(self):
         bitmask = EventSubscription.ALL
 
-        if self.parentComp.par.Includeinputvolumemeters:
+        if self.parentOP.par.Includeinputvolumemeters:
             bitmask |= EventSubscription.INPUT_VOLUME_METERS
-        if self.parentComp.par.Includeinputactivestatechanged:
+        if self.parentOP.par.Includeinputactivestatechanged:
             bitmask |= EventSubscription.INPUT_ACTIVE_STATE_CHANGED
-        if self.parentComp.par.Includeinputshowstatechanged:
+        if self.parentOP.par.Includeinputshowstatechanged:
             bitmask |= EventSubscription.INPUT_SHOW_STATE_CHANGED
-        if self.parentComp.par.Includesceneitemtransformchanged:
+        if self.parentOP.par.Includesceneitemtransformchanged:
             bitmask |= EventSubscription.SCENE_ITEM_TRANSFORM_CHANGED
 
         return bitmask
 
     def SendRequest(self, typ, rid=str(uuid4()), data=None):
-        self.parentComp.clearScriptErrors()
+        self.parentOP.clearScriptErrors()
 
         if isinstance(typ, RequestType):
             typ = typ.value
@@ -82,7 +83,7 @@ class OBSWebSocket(baseCOMP):
             "d": {"requestType": typ, "requestId": rid, "requestData": data},
         }
 
-        self.websocket.sendText(json.dumps(request))
+        self.websocketOP.sendText(json.dumps(request))
 
     def SendRequestBatch(
         self,
@@ -90,7 +91,7 @@ class OBSWebSocket(baseCOMP):
         executionType=RequestBatchExecutionType.SERIAL_REALTIME,
         haltOnFailure=False,
     ):
-        self.parentComp.clearScriptErrors()
+        self.parentOP.clearScriptErrors()
 
         if isinstance(data, abc.Sequence):
             for request in data:
@@ -107,13 +108,13 @@ class OBSWebSocket(baseCOMP):
             },
         }
 
-        self.websocket.sendText(json.dumps(request))
+        self.websocketOP.sendText(json.dumps(request))
 
     def HandleEvent(self, data):
         paramName = eventTypeToName(data["eventType"])
         eventData = data["eventData"] if "eventData" in data else True
 
         if "eventData" in data:
-            self.parentComp.par[paramName].val = eventData
+            self.parentOP.par[paramName].val = eventData
         else:
-            self.parentComp.par[paramName].pulse()
+            self.parentOP.par[paramName].pulse()

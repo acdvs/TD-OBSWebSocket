@@ -1,6 +1,7 @@
 import webbrowser
 
 from component_builder import buildEventPars
+from obs_websocket import OBSWebSocket
 
 docsUrl = (
     "https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md"
@@ -14,7 +15,8 @@ def onValueChange(par: Par):
         or par.name == "Includeinputshowstatechanged"
         or par.name == "Includesceneitemtransformchanged"
     ):
-        parent().Reidentify()
+        parentOP = parent().asType(OBSWebSocket)
+        parentOP.Reidentify()
 
 
 def onPulse(par: Par):
