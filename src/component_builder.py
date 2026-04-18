@@ -16,9 +16,6 @@ def buildEventPars(wsVersion: str = None):
     events = schema["events"]
 
     for event in events:
-        if wsVersion and not wsVersionHasEvent(wsVersion, event["initialVersion"]):
-            continue
-
         page = createOrGetPage(event["category"])
         parName = eventTypeToName(event["eventType"])
         parLabel = labelize(event["eventType"])
@@ -30,6 +27,12 @@ def buildEventPars(wsVersion: str = None):
 
         par.help = event["description"]
         par.readOnly = True
+
+        if wsVersion and not wsVersionHasEvent(wsVersion, event["initialVersion"]):
+            par.enable = False
+            par.help = (
+                "EVENT NOT SUPPORTED IN ACTIVE OBS WEBSOCKET VERSION\n\n" + par.help
+            )
 
 
 def createOrGetPage(catName: str):
