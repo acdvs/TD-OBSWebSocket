@@ -39,9 +39,10 @@ def handleResponse(data: RequestResponseMessage):
     status = data["requestStatus"]
     requestType = data["requestType"]
     requestId = data["requestId"] if "requestId" in data else ""
+    responseData = data["responseData"] if "responseData" in data else ""
 
     if status["result"]:
-        responsesOP.appendRow([requestType, requestId, data["responseData"]])
+        responsesOP.appendRow([requestType, requestId, responseData])
     else:
         requestStatus = RequestStatus(status["code"]).name
         message = "Bad OBS request\nCode: {}\nType: {}\nComment: {}".format(
