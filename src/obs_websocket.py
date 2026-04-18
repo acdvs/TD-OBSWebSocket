@@ -12,6 +12,7 @@ from obs_enums import (
     RequestType,
     RequestBatchExecutionType,
 )
+from obs_schema import EventMessage, HelloMessage
 
 
 class OBSWebSocket:
@@ -28,7 +29,7 @@ class OBSWebSocket:
         self.websocketOP.clear()
         self.responsesOP.clear(keepFirstRow=True)
 
-    def Identify(self, data):
+    def Identify(self, data: HelloMessage):
         obsWebSocketVersion = Version(data["obsWebSocketVersion"])
         buildEventPars(obsWebSocketVersion)
 
@@ -112,11 +113,10 @@ class OBSWebSocket:
 
         self.websocketOP.sendText(json.dumps(request))
 
-    def HandleEvent(self, data):
+    def HandleEvent(self, data: EventMessage):
         paramName = eventTypeToName(data["eventType"])
-        eventData = data["eventData"] if "eventData" in data else True
 
         if "eventData" in data:
-            self.parentOP.par[paramName].val = eventData
+            self.parentOP.par[paramName].val = data["eventData"]
         else:
             self.parentOP.par[paramName].pulse()

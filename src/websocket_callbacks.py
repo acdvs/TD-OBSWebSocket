@@ -1,6 +1,7 @@
 import json
 
 from obs_enums import WebSocketOpCode, RequestStatus
+from obs_schema import BaseMessage, RequestResponseMessage
 from obs_websocket import OBSWebSocket
 
 
@@ -12,7 +13,7 @@ def onReceiveText(dat, rowIndex, message: str):
     parentOP = parent().asType(OBSWebSocket)
     responsesOP = op("responses").asType(tableDAT)
 
-    msg = json.loads(message)
+    msg: BaseMessage = json.loads(message)
     data = msg["d"]
     opCode = msg["op"]
 
@@ -32,7 +33,7 @@ def onReceiveText(dat, rowIndex, message: str):
             handleResponse(res)
 
 
-def handleResponse(data):
+def handleResponse(data: RequestResponseMessage):
     responsesOP = op("responses").asType(tableDAT)
 
     status = data["requestStatus"]

@@ -1,17 +1,13 @@
 from packaging.version import Version
 import re
-from typing import Tuple, cast
-import urllib.request
+from typing import cast
 
-schema = None
-schemaUrl = "https://raw.githubusercontent.com/obsproject/obs-websocket/master/docs/generated/protocol.json"
-
-with urllib.request.urlopen(schemaUrl) as res:
-    schema = json.load(res)
+from obs_schema import Event, loadSchema
 
 
 def buildEventPars(wsVersion: Version = None):
-    events = schema["events"]
+    schema = loadSchema()
+    events: list[Event] = schema["events"]
 
     for event in events:
         page = createOrGetPage(event["category"])

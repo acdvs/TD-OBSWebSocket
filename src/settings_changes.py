@@ -3,10 +3,6 @@ import webbrowser
 from component_builder import buildEventPars
 from obs_websocket import OBSWebSocket
 
-docsUrl = (
-    "https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md"
-)
-
 
 def onValueChange(par: Par):
     if (
@@ -20,8 +16,10 @@ def onValueChange(par: Par):
 
 
 def onPulse(par: Par):
+    schemaUrl = parent().fetch("docs_url")
+
     if par.name == "Opendocumentation":
-        webbrowser.open_new_tab(docsUrl)
+        webbrowser.open_new_tab(schemaUrl)
         return
 
     if par.name == "Updatepars":
