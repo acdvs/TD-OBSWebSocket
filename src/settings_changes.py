@@ -1,6 +1,7 @@
 import webbrowser
 
 from component_builder import buildEventPars
+from obs_schema import generateEnums
 from obs_websocket import OBSWebSocket
 
 
@@ -22,9 +23,10 @@ def onPulse(par: Par):
         webbrowser.open_new_tab(schema_url)
         return
 
-    if par.name == "Updatepars":
+    if par.name == "Updatedata":
         for page in parent().customPages:
             if page.index >= 1:
                 page.destroy()
 
         buildEventPars()
+        generateEnums()
