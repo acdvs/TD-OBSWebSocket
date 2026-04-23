@@ -1,6 +1,5 @@
 from packaging.version import Version
 import re
-from typing import cast
 
 from obs_schema import Event, loadSchema
 
