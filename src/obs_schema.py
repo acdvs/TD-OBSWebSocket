@@ -1,7 +1,8 @@
 import json
-import re
 from typing import Any, NotRequired, TypedDict
 import urllib.request
+
+from obs_enums import RequestType, RequestStatus as RequestStatusCode
 
 
 # Messages
@@ -30,14 +31,20 @@ class EventMessage(TypedDict):
     eventData: dict[str, Any]
 
 
+class RequestMessage(TypedDict):
+    requestType: RequestType
+    requestId: str
+    requestData: dict[str, Any]
+
+
 class RequestStatus(TypedDict):
     result: bool
-    code: int
+    code: RequestStatusCode
     comment: NotRequired[str]
 
 
 class RequestResponseMessage(TypedDict):
-    requestType: str
+    requestType: RequestType
     requestId: str
     requestStatus: RequestStatus
     responseData: dict[str, Any]
