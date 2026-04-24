@@ -1,7 +1,6 @@
 import webbrowser
 
 from component_builder import buildEventPars
-from obs_schema import generateEnums
 from obs_websocket import OBSWebSocket
 
 
@@ -29,4 +28,3 @@ def onPulse(par: Par):
                 page.destroy()
 
         buildEventPars()
-        generateEnums()
