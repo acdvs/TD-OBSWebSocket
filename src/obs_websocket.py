@@ -1,17 +1,19 @@
 from base64 import b64encode
-from collections import abc
 from hashlib import sha256
 import json
-from packaging.version import Version
+from typing import Any
 from uuid import uuid4
+from packaging.version import Version
 
 from component_builder import build_event_pars, event_type_to_name
 from obs_enums import (
+    RequestStatus,
     WebSocketOpCode,
     EventSubscription,
     RequestType,
     RequestBatchExecutionType,
 )
+from obs_request import Request
 from obs_schema import EventMessage, HelloMessage
 
 
@@ -21,47 +23,44 @@ class OBSWebSocket:
         self.websocket_op = op("websocket").asType(websocketDAT)
         self.responses_op = op("responses").asType(tableDAT)
 
-        self.RequestType = RequestType
-        self.RequestBatchExecutionType = RequestBatchExecutionType
-
         self.parent_op.par.Connected = False
 
         self.websocket_op.clear()
         self.responses_op.clear(keepFirstRow=True)
 
+        self.Request = Request
+        self.RequestBatchExecutionType = RequestBatchExecutionType
+        self.RequestStatus = RequestStatus
+        self.RequestType = RequestType
+
     def Identify(self, data: HelloMessage):
         obs_websocket_version = Version(data["obsWebSocketVersion"])
-        buildEventPars(obs_websocket_version)
+        build_event_pars(obs_websocket_version)
 
         response = {
             "op": WebSocketOpCode.IDENTIFY,
-            "d": {"rpcVersion": 1, "eventSubscriptions": self.getSubscriptionBitmask()},
+            "d": {
+                "rpcVersion": 1,
+                "eventSubscriptions": self.__get_subscription_bitmask(),
+            },
         }
 
         if "authentication" in data:
-            secret = self.toHashedBase64String(
+            secret = base64_hash(
                 self.parent_op.par.Password + data["authentication"]["salt"]
             )
-            auth = self.toHashedBase64String(
-                secret + data["authentication"]["challenge"]
-            )
+            auth = base64_hash(secret + data["authentication"]["challenge"])
 
             response["d"]["authentication"] = auth
 
         self.websocket_op.sendText(json.dumps(response))
 
-    def toHashedBase64String(self, data: str):
-        bytes_data = data.encode()
-        hashed_data = sha256(bytes_data).digest()
-        base64_data = b64encode(hashed_data)
-        return base64_data.decode()
-
     def Reidentify(self):
-        message = {"eventSubscriptions": self.getSubscriptionBitmask()}
+        message = {"eventSubscriptions": self.__get_subscription_bitmask()}
 
         self.websocket_op.sendText(json.dumps(message))
 
-    def getSubscriptionBitmask(self):
+    def __get_subscription_bitmask(self):
         bitmask = EventSubscription.ALL
 
         if self.parent_op.par.Includeinputvolumemeters:
@@ -75,48 +74,66 @@ class OBSWebSocket:
 
         return bitmask
 
-    def SendRequest(self, typ, rid=str(uuid4()), data=None):
-        self.parent_op.clearScriptErrors()
-
-        if isinstance(typ, RequestType):
-            typ = typ.value
-
-        request = {
-            "op": WebSocketOpCode.REQUEST,
-            "d": {"requestType": typ, "requestId": rid, "requestData": data},
-        }
-
-        self.websocket_op.sendText(json.dumps(request))
-
-    def SendRequestBatch(
-        self,
-        data,
-        execution_type=RequestBatchExecutionType.SERIAL_REALTIME,
-        halt_on_failure=False,
-    ):
-        self.parent_op.clearScriptErrors()
-
-        if isinstance(data, abc.Sequence):
-            for request in data:
-                if isinstance(request["requestType"], RequestType):
-                    request["requestType"] = request["requestType"].value
-
-        request = {
-            "op": WebSocketOpCode.REQUEST_BATCH,
-            "d": {
-                "requestId": str(uuid4()),
-                "haltOnFailure": halt_on_failure,
-                "executionType": execution_type,
-                "requests": data,
-            },
-        }
-
-        self.websocket_op.sendText(json.dumps(request))
-
     def HandleEvent(self, data: EventMessage):
-        param_name = eventTypeToName(data["eventType"])
+        param_name = event_type_to_name(data["eventType"])
 
         if "eventData" in data:
             self.parent_op.par[param_name].val = data["eventData"]
         else:
             self.parent_op.par[param_name].pulse()
+
+    def __send_request(self, data: dict[str, Any]):
+        sent_bytes = self.websocket_op.sendText(json.dumps(data))
+        return True if sent_bytes >= 0 else False
+
+    def SendRequest(self, request: Request):
+        """
+        Send a request to OBS.
+        ### Returns
+        A boolean indicating success.
+        """
+        data = request.build()
+        return self.__send_request(data)
+
+    def SendBatchRequest(
+        self,
+        requests: list[Request],
+        execution_type: RequestBatchExecutionType = RequestBatchExecutionType.SERIAL_REALTIME,
+        halt_on_failure: bool = False,
+        id: str = None,
+    ):
+        """
+        Send multiple requests to OBS.
+        ### Arguments
+        - `requests` - The `Request`s to send.
+        - `execution_type` - The [batch execution type](https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#requestbatchexecutiontype). Defaults to standard serial execution.
+        - `halt_on_failure` - If true, stop processing if one request fails.
+        - `id` - A batch request ID . Directly returned in the response. Useful for distinguishing batch requests. This ID is separate from request IDs within the batch.
+        ### Returns
+        A boolean indicating success.
+        """
+        if len(requests) == 0:
+            raise ValueError("No requests passed to SendBatchRequest.")
+
+        request_data = [request.build_data() for request in requests]
+
+        batch_data = {
+            "op": WebSocketOpCode.REQUEST_BATCH,
+            "d": {
+                "executionType": execution_type.value,
+                "haltOnFailure": halt_on_failure,
+                "requestId": id or str(uuid4()),
+                "requests": request_data,
+            },
+        }
+
+        print(json.dumps(batch_data))
+
+        return self.__send_request(batch_data)
+
+
+def base64_hash(data: str):
+    bytes_data = data.encode()
+    hashed_data = sha256(bytes_data).digest()
+    base64_data = b64encode(hashed_data)
+    return base64_data.decode()
