@@ -1,9 +1,9 @@
 import re
 from typing import Any
 
-from obs_schema import loadSchema
+from obs_schema import load_schema
 
-schema = loadSchema()
+schema = load_schema()
 
 lines: list[str] = []
 enum_imports = ["unique"]

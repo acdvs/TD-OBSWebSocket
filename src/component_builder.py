@@ -1,16 +1,16 @@
 from packaging.version import Version
 import re
 
-from obs_schema import Event, loadSchema
+from obs_schema import Event, load_schema
 
 
-def buildEventPars(ws_version: Version = None):
-    schema = loadSchema()
+def build_event_pars(ws_version: Version = None):
+    schema = load_schema()
     events: list[Event] = schema["events"]
 
     for event in events:
-        page = createOrGetPage(event["category"])
-        par_name = eventTypeToName(event["eventType"])
+        page = create_or_get_page(event["category"])
+        par_name = event_type_to_name(event["eventType"])
         par_label = labelize(event["eventType"])
 
         if len(event["dataFields"]) == 0:
@@ -28,7 +28,7 @@ def buildEventPars(ws_version: Version = None):
             )
 
 
-def createOrGetPage(cat_name: str):
+def create_or_get_page(cat_name: str):
     parent_op = parent().asType(baseCOMP)
 
     page_name = labelize(cat_name.capitalize())
@@ -50,5 +50,5 @@ def labelize(text: str):
     return label
 
 
-def eventTypeToName(event_type: str):
+def event_type_to_name(event_type: str):
     return event_type.lower().capitalize()

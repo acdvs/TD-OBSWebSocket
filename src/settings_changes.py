@@ -1,6 +1,6 @@
 import webbrowser
 
-from component_builder import buildEventPars
+from component_builder import build_event_pars
 from obs_websocket import OBSWebSocket
 
 
@@ -27,4 +27,4 @@ def onPulse(par: Par):
             if page.index >= 1:
                 page.destroy()
 
-        buildEventPars()
+        build_event_pars()

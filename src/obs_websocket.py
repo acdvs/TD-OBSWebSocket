@@ -5,7 +5,7 @@ import json
 from packaging.version import Version
 from uuid import uuid4
 
-from component_builder import buildEventPars, eventTypeToName
+from component_builder import build_event_pars, event_type_to_name
 from obs_enums import (
     WebSocketOpCode,
     EventSubscription,

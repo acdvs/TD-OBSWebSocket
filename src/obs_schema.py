@@ -97,7 +97,7 @@ class Schema(TypedDict):
 # Utils
 
 
-def loadSchema() -> Schema:
+def load_schema() -> Schema:
     schema_url = parent().fetch("schema_url")
 
     with urllib.request.urlopen(schema_url) as res:
