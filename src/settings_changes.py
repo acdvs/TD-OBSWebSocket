@@ -4,7 +4,7 @@ from component_builder import build_event_pars
 from obs_websocket import OBSWebSocket
 
 
-def onValueChange(par: Par):
+def onValueChange(par: Par, val, prev):
     if (
         par.name == "Includeinputvolumemeters"
         or par.name == "Includeinputactivestatechanged"
