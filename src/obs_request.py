@@ -39,7 +39,7 @@ class Request:
             "requestData": self.data,
         }
 
-    def build(self) -> RequestMessage:
+    def build_message(self) -> RequestMessage:
         """
         Build the request into a dictionary ready to be sent to OBS.
         ### Returns

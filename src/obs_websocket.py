@@ -60,20 +60,6 @@ class OBSWebSocket:
 
         self.websocket_op.sendText(json.dumps(message))
 
-    def __get_subscription_bitmask(self):
-        bitmask = EventSubscription.ALL
-
-        if self.parent_op.par.Includeinputvolumemeters:
-            bitmask |= EventSubscription.INPUT_VOLUME_METERS
-        if self.parent_op.par.Includeinputactivestatechanged:
-            bitmask |= EventSubscription.INPUT_ACTIVE_STATE_CHANGED
-        if self.parent_op.par.Includeinputshowstatechanged:
-            bitmask |= EventSubscription.INPUT_SHOW_STATE_CHANGED
-        if self.parent_op.par.Includesceneitemtransformchanged:
-            bitmask |= EventSubscription.SCENE_ITEM_TRANSFORM_CHANGED
-
-        return bitmask
-
     def HandleEvent(self, data: EventMessage):
         param_name = event_type_to_name(data["eventType"])
 
@@ -82,17 +68,13 @@ class OBSWebSocket:
         else:
             self.parent_op.par[param_name].pulse()
 
-    def __send_request(self, data: dict[str, Any]):
-        sent_bytes = self.websocket_op.sendText(json.dumps(data))
-        return True if sent_bytes >= 0 else False
-
     def SendRequest(self, request: Request):
         """
         Send a request to OBS.
         ### Returns
         A boolean indicating success.
         """
-        data = request.build()
+        data = request.build_message()
         return self.__send_request(data)
 
     def SendBatchRequest(
@@ -127,9 +109,25 @@ class OBSWebSocket:
             },
         }
 
-        print(json.dumps(batch_data))
-
         return self.__send_request(batch_data)
+
+    def __send_request(self, data: dict[str, Any]):
+        sent_bytes = self.websocket_op.sendText(json.dumps(data))
+        return True if sent_bytes >= 0 else False
+
+    def __get_subscription_bitmask(self):
+        bitmask = EventSubscription.ALL
+
+        if self.parent_op.par.Includeinputvolumemeters:
+            bitmask |= EventSubscription.INPUT_VOLUME_METERS
+        if self.parent_op.par.Includeinputactivestatechanged:
+            bitmask |= EventSubscription.INPUT_ACTIVE_STATE_CHANGED
+        if self.parent_op.par.Includeinputshowstatechanged:
+            bitmask |= EventSubscription.INPUT_SHOW_STATE_CHANGED
+        if self.parent_op.par.Includesceneitemtransformchanged:
+            bitmask |= EventSubscription.SCENE_ITEM_TRANSFORM_CHANGED
+
+        return bitmask
 
 
 def base64_hash(data: str):

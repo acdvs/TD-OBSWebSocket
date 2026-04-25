@@ -25,15 +25,15 @@ def onReceiveText(dat, row_index, message: str):
         parent_op.HandleEvent(data)
     elif op_code == WebSocketOpCode.REQUEST_RESPONSE:
         responses_op.clear(keepFirstRow=True)
-        handleResponse(data)
+        handle_response(data)
     elif op_code == WebSocketOpCode.REQUEST_BATCH_RESPONSE:
         responses_op.clear(keepFirstRow=True)
 
         for res in data["results"]:
-            handleResponse(res, data["requestId"])
+            handle_response(res, data["requestId"])
 
 
-def handleResponse(data: RequestResponseMessage, batch_id: str = None):
+def handle_response(data: RequestResponseMessage, batch_id: str = None):
     responses_op = op("responses").asType(tableDAT)
 
     status = data["requestStatus"]
