@@ -30,16 +30,17 @@ def onReceiveText(dat, row_index, message: str):
         responses_op.clear(keepFirstRow=True)
 
         for res in data["results"]:
-            handleResponse(res)
+            handleResponse(res, data["requestId"])
 
 
-def handleResponse(data: RequestResponseMessage):
+def handleResponse(data: RequestResponseMessage, batch_id: str = None):
     responses_op = op("responses").asType(tableDAT)
 
     status = data["requestStatus"]
     request_type = data["requestType"]
     request_id = data["requestId"] if "requestId" in data else ""
+    batch_id = batch_id or ""
 
     row_data = data["responseData"] if "responseData" in data else "{}"
 
-    responses_op.appendRow([request_type, row_data, status, request_id])
+    responses_op.appendRow([request_type, row_data, status, request_id, batch_id])
