@@ -29,48 +29,48 @@ It's possible to enable or disable high-volume events while connected to the ser
 
 All methods and enums mentioned below are promoted via `op.OBSWebSocket`. Each request type's necessary data can be found in the obs-websocket [documentation][requests]. All enum values can be found in the [source][obs-enums].
 
+```py
+OBSWS = op.OBSWebSocket
+```
+
 #### Request
 
 Sending a request to OBS starts with creating a `Request` object.
 
 | Parameter | Type  | Description | Default | Required |
 | -- | -- | -- | -- | -- |
-| 1 | [RequestType][request-type] | Request type | | ✅ |
-| data | dict | Any necessary data for the request type. | None | |
-| id | str | A unique ID. Directly sent back in the response. | _uuid4()_ | |
+| 1 | [RequestType][request-type] | The request type. | | ✅ |
+| data | dict | Any necessary data for the request type. | `None` | |
+| id | str | A unique ID. Directly sent back in the response. | `uuid4()` | |
+
+```py
+req = OBSWS.Request(
+   OBSWS.RequestType.SET_CURRENT_PROGRAM_SCENE,
+   data={"sceneName": "Some Existing Scene"},
+   id="my-unique-req-id",
+)
+```
 
 #### SendRequest
 
-Pass an individual request to `SendRequest`.
+Then, simply pass the request to `SendRequest`. Responds with a boolean indicating success.
 
 ```py
-OBSWS = op.OBSWebSocket
-
-basic_req = OBSWS.Request(OBSWS.RequestType.GET_STATS)
-success = BSWS.SendRequest(basic_req)
-
-advanced_req = OBSWS.Request(
-   OBSWS.RequestType.SET_CURRENT_PROGRAM_SCENE,
-   data={"sceneName": "Some Existing Scene"},
-   id="unique-id",
-)
-success = OBSWS.SendRequest(advanced_req)
+success = OBSWS.SendRequest(req)
 ```
 
 #### SendBatchRequest
 
-Sending multiple requests is as easy as creating them and passing them to `SendBatchRequest` as a list.
+Sending multiple requests is as easy as creating them and passing them to `SendBatchRequest` as a list. Responds with a boolean indicating success.
 
 | Parameter | Type  | Description | Default | Required |
 | -- | -- | -- | -- | -- |
 | 1 | list[Request] | A list of requests. | | ✅ |
-| execution_type | [RequestBatchExecutionType][batch-type] | Changes how the requests are processed. | SERIAL_REALTIME | |
-| halt_on_failure | bool | Stops processing requests on failure. | False | |
-| id | str | A unique ID. Directly sent back in the response. Separate from individual request IDs. | _uuid4()_ | |
+| execution_type | [RequestBatchExecutionType][batch-type] | Changes how the requests are processed. | `SERIAL_REALTIME` | |
+| halt_on_failure | bool | Stops processing requests on failure. | `False` | |
+| id | str | A unique ID. Directly sent back in the response. Separate from individual request IDs. | `uuid4()` | |
 
 ```py
-OBSWS = op.OBSWebSocket
-
 req1 = OBSWS.Request(OBSWS.RequestType.GET_VERSION)
 req2 = OBSWS.Request(OBSWS.RequestType.GET_STATS)
 
@@ -79,7 +79,7 @@ success = OBSWS.SendBatchRequest(
    [req1, req2],
    execution_type=OBSWS.RequestBatchExecutionType.PARALLEL,
    halt_on_failure=True,
-   id="unique-id",
+   id="my-unique-batch-id",
 )
 ```
 
