@@ -71,12 +71,11 @@ Sending multiple requests is as easy as creating them and passing them to `SendB
 | id | str | A unique ID. Directly sent back in the response. Separate from individual request IDs. | `uuid4()` | |
 
 ```py
-req1 = OBSWS.Request(OBSWS.RequestType.GET_VERSION)
-req2 = OBSWS.Request(OBSWS.RequestType.GET_STATS)
+req_1 = OBSWS.Request(OBSWS.RequestType.GET_VERSION)
+req_2 = OBSWS.Request(OBSWS.RequestType.GET_STATS)
 
-success = OBSWS.SendBatchRequest([req1, req2])
 success = OBSWS.SendBatchRequest(
-   [req1, req2],
+   [req_1, req_2],
    execution_type=OBSWS.RequestBatchExecutionType.PARALLEL,
    halt_on_failure=True,
    id="my-unique-batch-id",
